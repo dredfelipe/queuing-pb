@@ -3,7 +3,7 @@ const levels={Beginner:1,Intermediate:2,Advanced:3};
 const id=()=>crypto.randomUUID();
 function initialState(){return {courts:[{id:id(),name:'Court 1',enabled:true,match:null},{id:id(),name:'Court 2',enabled:true,match:null}],queue:[],history:{},completed:0};}
 function publicState(s){return {...s,history:undefined,profiles:undefined};}
-function migrateState(s){s.profiles ||= {};for(const e of [...s.queue,...s.courts.flatMap(c=>c.match?c.match.entries:[])])for(const p of e.players)s.profiles[p.id]={...p};return s;}
+function migrateState(s){if(!s.gamesPlayed){s.gamesPlayed={};for(const [team,total] of Object.entries(s.history||{}))for(const playerId of team.split(':'))s.gamesPlayed[playerId]=(s.gamesPlayed[playerId]||0)+total;}s.profiles ||= {};for(const e of [...s.queue,...s.courts.flatMap(c=>c.match?c.match.entries:[])])for(const p of e.players)s.profiles[p.id]={...p};return s;}
 function photo(value){if(value==null||value==='')return undefined;if(typeof value!=='string'||!/^\/photos\/[a-f0-9]{64}\.(jpg|png|webp)$/.test(value))throw Error('Choose a valid player photo.');return value;}
 function name(value){if(typeof value!=='string'||!value.trim()||value.trim().length>40)throw Error('Use a name between 1 and 40 characters.');return value.trim();}
 function player(value){if(!value||!levels[value.skill])throw Error('Choose a valid skill level.');return {id:id(),name:name(value.name),skill:value.skill,photo:photo(value.photo)};}
@@ -48,7 +48,7 @@ function applyAction(input,a){const s=migrateState(structuredClone(input));
  case 'addCourt':if(s.courts.length>=100)throw Error('A session supports up to 100 courts.');s.courts.push({id:id(),name:name(a.name),enabled:true,match:null});break;
  case 'toggleCourt':{const c=s.courts.find(c=>c.id===a.id);if(!c)throw Error('Court not found.');if(c.match)throw Error('Finish the current match before pausing this court.');c.enabled=!c.enabled;break;}
  case 'start':{const c=s.courts.find(c=>c.id===a.id);if(!c)throw Error('Court not found.');if(c.match)throw Error('This court already has a match.');fill(s,c);if(!c.match)throw Error('Need a complete group of four players.');break;}
- case 'finish':{const c=s.courts.find(c=>c.id===a.id);if(!c||!c.match||c.match.id!==a.matchId)throw Error('This match has already changed. Refresh and try again.');const match=c.match;for(const team of match.teams){const key=teamKey(...team);s.history[key]=(s.history[key]||0)+1;}s.queue.push(...match.entries);s.completed++;c.match=null;fill(s,c);break;}
+ case 'finish':{const c=s.courts.find(c=>c.id===a.id);if(!c||!c.match||c.match.id!==a.matchId)throw Error('This match has already changed. Refresh and try again.');const match=c.match;for(const p of match.entries.flatMap(e=>e.players))s.gamesPlayed[p.id]=(s.gamesPlayed[p.id]||0)+1;for(const team of match.teams){const key=teamKey(...team);s.history[key]=(s.history[key]||0)+1;}s.queue.push(...match.entries);s.completed++;c.match=null;fill(s,c);break;}
  case 'replace':{
  const court=s.courts.find(c=>c.id===a.id);
  if(!court||!court.match||court.match.id!==a.matchId)throw Error('This court has changed. Close this window and try again.');

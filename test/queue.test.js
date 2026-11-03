@@ -117,3 +117,22 @@ test('old session data migrates active players into the saved directory without 
  const {migrateState}=require('../queue');let s=add(initialState(),'Legacy');delete s.profiles;const queue=structuredClone(s.queue);
  s=migrateState(s);assert.deepEqual(s.queue,queue);assert.equal(Object.values(s.profiles)[0].name,'Legacy');
 });
+test('completed game counts increase once for current court players and survive edits and recheck-in',()=>{
+ let s=initialState();for(const n of ['A','B','C','D','E'])s=add(s,n);
+ const id=s.courts[0].id;const originalId=s.queue[0].players[0].id;
+ s=applyAction(s,{type:'start',id});assert.equal(s.gamesPlayed[originalId]||0,0);
+ const matchId=s.courts[0].match.id;const players=s.courts[0].match.entries.flatMap(e=>e.players);
+ s=applyAction(s,{type:'finish',id,matchId});for(const p of players)assert.equal(s.gamesPlayed[p.id],1);
+ assert.throws(()=>applyAction(s,{type:'finish',id,matchId}),/already changed/);assert.equal(s.gamesPlayed[originalId],1);
+ const waiting=s.queue[0];s=applyAction(s,{type:'edit',id:waiting.id,players:waiting.players.map(p=>({name:p.name+' edited',skill:p.skill}))});
+ const playerId=waiting.players[0].id;s=applyAction(s,{type:'remove',id:waiting.id});s=applyAction(s,{type:'checkIn',playerIds:[playerId]});assert.equal(s.gamesPlayed[playerId],1);
+});
+test('replacement credits only the four players present when the match finishes',()=>{
+ let s=initialState();for(const n of ['A','B','C','D','E'])s=add(s,n);const id=s.courts[0].id;s=applyAction(s,{type:'start',id});
+ const outgoing=s.courts[0].match.entries[0].players[0].id,replacement=s.queue[0];
+ s=applyAction(s,{type:'replace',id,matchId:s.courts[0].match.id,playerId:outgoing,replacementId:replacement.id,destination:'leave'});
+ s=applyAction(s,{type:'finish',id,matchId:s.courts[0].match.id});assert.equal(s.gamesPlayed[outgoing]||0,0);assert.equal(s.gamesPlayed[replacement.players[0].id],1);
+});
+test('legacy counts initialize from completed history once',()=>{
+ const {migrateState}=require('../queue');const s=initialState();s.history={'alex:sam':2,'alex:robin':1};migrateState(s);assert.deepEqual(s.gamesPlayed,{alex:3,sam:2,robin:1});s.history['alex:sam']=8;migrateState(s);assert.equal(s.gamesPlayed.alex,3);
+});
