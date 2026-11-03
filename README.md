@@ -25,6 +25,10 @@ PUBLIC_URL=http://192.168.1.50:3000 npm start
 
 A router DHCP reservation keeps that address stable. Restart after changing the address. Optional settings: `PORT` (default `3000`), `ORGANIZER_PIN`, and `DATA_DIR`.
 
+## Venue logo
+
+In organizer controls, use **Venue logo** to choose a JPEG, PNG, or WebP image, then click **Save logo**. It appears in the header on the TV, admin, and registration pages and above the courts in fullscreen TV mode. PNG transparency is preserved and the logo is scaled proportionally. To remove it, check **Remove logo** and save. Logos are stored locally in `data/photos/`, with the current selection saved in the session; updates are broadcast live and survive restarts. Only the organizer can change the logo.
+
 ## Play
 
 - Add players in organizer controls or let players register themselves. Names must be unique in the session; add a surname/initial if needed.

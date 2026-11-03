@@ -20,11 +20,21 @@ test('local HTTP flow: PIN, QR, live events, registration, and persisted restart
  const photoPath=joined.body.queue[0].players[0].photo;assert.match(photoPath,/^\/photos\//);const image=await fetch(base+photoPath);assert.equal(image.headers.get('content-type'),'image/png');assert.equal(image.status,200);
  assert.equal((await action({type:'directory'})).status,401);const directory=await action({type:'directory',pin:'123456'});assert.equal(directory.body.players.length,2);
  const update=new TextDecoder().decode((await reader.read()).value);assert.match(update,/Alex/);await reader.cancel();
+ assert.equal((await action({type:'setLogo',logo:photo})).status,401);
+ const beforeLogo=await(await fetch(base+'/api/state')).json();
+ const logoResult=await action({type:'setLogo',logo:photo,pin:'123456'});assert.equal(logoResult.status,200);const logoPath=logoResult.body.logo;
+ assert.match(logoPath,/^\/photos\//);assert.equal((await fetch(base+logoPath)).status,200);
+ assert.deepEqual(logoResult.body.queue,beforeLogo.queue);assert.deepEqual(logoResult.body.courts,beforeLogo.courts);
+ const logoEvents=await fetch(base+'/events');const logoReader=logoEvents.body.getReader();assert.match(new TextDecoder().decode((await logoReader.read()).value),new RegExp(logoPath));
+ const invalidLogo=await action({type:'setLogo',logo:'data:image/png;base64,YmFk',pin:'123456'});assert.equal(invalidLogo.status,400);
+ const unchanged=await(await fetch(base+'/api/state')).json();assert.equal(unchanged.logo,logoPath);
+ await action({type:'setLogo',logo:photo,pin:'123456'});assert.match(new TextDecoder().decode((await logoReader.read()).value),new RegExp(logoPath));await logoReader.cancel();
  assert.equal((await action({type:'addCourt',name:'Patio',pin:'123456'})).status,200);
- await stop();await start();const s=await(await fetch(base+'/api/state')).json();assert.equal(s.queue[0].players[1].name,'Sam');assert.equal(s.courts[2].name,'Patio');assert.equal(s.base,base);
+ await stop();await start();const s=await(await fetch(base+'/api/state')).json();assert.equal(s.queue[0].players[1].name,'Sam');assert.equal(s.courts[2].name,'Patio');assert.equal(s.base,base);assert.equal(s.logo,logoPath);
  assert.equal((await fetch(base+s.queue[0].players[0].photo)).status,200);
  const savedPlayerId=s.queue[0].players[0].id;await action({type:'remove',id:s.queue[0].id,pin:'123456'});
  const rejoined=await action({type:'checkIn',playerIds:[savedPlayerId],pin:'123456'});assert.equal(rejoined.status,200);assert.equal(rejoined.body.queue[0].players[0].photo,photoPath);
  const badImage=await action({type:'join',player:{name:'Bad image',skill:'Beginner',photo:'data:image/png;base64,YmFk'},pin:'123456'});assert.equal(badImage.status,400);
+ const removedLogo=await action({type:'setLogo',logo:null,pin:'123456'});assert.equal(removedLogo.status,200);assert.equal(removedLogo.body.logo,null);
  }finally{await stop();rmSync(dir,{recursive:true,force:true});}
 });

@@ -3,9 +3,10 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {JSDOM}=require('jsdom');
 const {initialState,applyAction,publicState}=require('../queue');
-async function setup(failReplacement=false){
+async function setup(failReplacement=false,logo=null){
  let state=applyAction(initialState(),{type:'join',player:{name:'Returning Robin',skill:'Advanced'}});state=applyAction(state,{type:'remove',id:state.queue[0].id});for(const name of ['Alex','Blair','Casey','Drew','Evan'])state=applyAction(state,{type:'join',player:{name,skill:'Intermediate'}});
  state=applyAction(state,{type:'start',id:state.courts[0].id});
+ state.logo=logo;
  const dom=new JSDOM('<div id="app"></div><div id="toast"></div>',{url:'http://localhost/admin',runScripts:'outside-only'});const w=dom.window;
  w.sessionStorage.setItem('courtside-pin','123456');w.EventSource=class {};w.setInterval=()=>0;
  w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');this.querySelector('select,input,button')?.focus();};
@@ -48,5 +49,13 @@ test('organizer can search archived players and check them in without reentering
  dialog.querySelector('[data-check-in]').click();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(w.document.querySelector('dialog'),null);assert.equal(getState().queue.at(-1).players[0].id,savedId);
  assert.match(w.document.querySelector('.queue').textContent,/Returning Robin/);
+ }finally{dom.window.close();}
+});
+test('organizer sees the saved logo and can remove it without changing the queue',async()=>{
+ const logo='/photos/'+'a'.repeat(64)+'.png';const {dom,w,getState}=await setup(false,logo);try{
+ assert.equal(w.document.querySelector('.venue-logo').getAttribute('src'),logo);
+ const queue=structuredClone(getState().queue);const form=w.document.querySelector('#logo-form');assert.equal(form.querySelector('.photo-preview').getAttribute('src'),logo);
+ form.querySelector('[name="remove-logo"]').checked=true;form.dispatchEvent(new w.Event('submit',{cancelable:true,bubbles:true}));await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(getState().logo,null);assert.equal(w.document.querySelector('.venue-logo'),null);assert.deepEqual(getState().queue,queue);
  }finally{dom.window.close();}
 });

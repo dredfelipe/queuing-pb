@@ -42,7 +42,7 @@ const server=http.createServer(async(req,res)=>{
  attempts.delete(ip);
  }
  if(body.type==='directory')return json(res,200,{players:Object.values(state.profiles||{})});
- const uploaded=[];
+ const uploaded=[];const logoUpload=body.type==='setLogo'?{photo:body.logo}:null;if(logoUpload)uploaded.push(logoUpload);
  if(body.type==='join')uploaded.push(body.player,body.partner);
  if(body.type==='edit'&&Array.isArray(body.players))uploaded.push(...body.players);
  for(const value of uploaded.filter(Boolean))if(typeof value.photo==='string'&&value.photo.startsWith('data:')){
@@ -53,6 +53,7 @@ const server=http.createServer(async(req,res)=>{
  const filename=crypto.createHash('sha256').update(bytes).digest('hex')+'.'+(type==='jpeg'?'jpg':type);
  fs.writeFileSync(path.join(photosDir,filename),bytes);value.photo='/photos/'+filename;
  }
+ if(logoUpload)body.logo=logoUpload.photo;
  const next=applyAction(state,body);
  const previous=state;state=next;try{save();}catch(error){state=previous;throw error;}return json(res,200,publicState(state));
  }

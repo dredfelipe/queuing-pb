@@ -27,6 +27,7 @@ function fill(s,court){if(!court.enabled||court.match)return;const entries=nextE
 function applyAction(input,a){const s=migrateState(structuredClone(input));
  switch(a.type){
  case 'login':break;
+ case 'setLogo':s.logo=photo(a.logo)||null;break;
  case 'join':{
  const players=[player(a.player)];if(a.partner)players.push(player(a.partner));
  const existing=[...s.queue,...s.courts.flatMap(c=>c.match?c.match.entries:[])].flatMap(e=>e.players);
