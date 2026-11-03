@@ -1,0 +1,21 @@
+{
+  "name": "queuing-pb",
+  "version": "1.0.0",
+  "description": "Offline-first local-network pickleball queue with TV display and locked teammates",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "check": "node --check server.js && node --check queue.js && node --check public/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.3"
+  }
+}
