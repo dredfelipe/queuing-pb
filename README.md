@@ -27,7 +27,7 @@ A router DHCP reservation keeps that address stable. Restart after changing the 
 
 ## Light and dark mode
 
-Use the **Light mode / Dark mode** button on any page. Each device remembers its choice across refreshes and navigation; the first visit follows the device’s appearance preference. Fullscreen TV has a theme button in the lower-left corner that becomes more visible when hovered or focused. Changing the theme does not affect other devices or interrupt the queue.
+Use the **sun / moon** icon button on any page. Each device remembers its choice across refreshes and navigation; the first visit follows the device’s appearance preference. Fullscreen TV has a theme button in the lower-left corner that becomes more visible when hovered or focused. Changing the theme does not affect other devices or interrupt the queue.
 
 ## Venue logo
 

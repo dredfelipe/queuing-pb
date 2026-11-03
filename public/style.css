@@ -44,3 +44,5 @@ nav button{font-size:13px;padding:9px 12px}.tv-exit{display:none}
 [data-theme="light"] .edit-dialog{color:#243322}[data-theme="light"] .edit-dialog fieldset{border-color:#ccd7c5}[data-theme="light"] .edit-dialog legend{color:#56664d}
 [data-theme="light"] [data-action-error]{color:#852e24;background:#f8dedb}
 [data-theme="light"] #toast{background:#243322;color:#fff}
+
+[data-theme-toggle],.tv-mode .tv-theme{width:42px;height:42px;padding:0;font-size:23px;line-height:1;flex-shrink:0}[data-theme-toggle] span{display:inline-block}

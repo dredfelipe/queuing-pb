@@ -13,11 +13,11 @@ function actionError(message){
 }
 function closeEditor(dialog){dialog.close();dialog.remove();render();}
 async function action(body){try{const res=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,pin})});const data=await res.json();if(!res.ok)throw Error(data.error);state=data;return true;}catch(e){actionError(e.message==='Unknown action.'?'The server is using an older version. Restart it with npm start, then try again.':e.message||'Could not connect to the local server.');return false;}}
-function themeButton(extraClass=''){const light=document.documentElement.dataset.theme==='light';return `<button type="button" class="secondary ${extraClass}" data-theme-toggle aria-label="Switch to ${light?'dark':'light'} mode" aria-pressed="${light}">${light?'☾ Dark mode':'☀ Light mode'}</button>`;}
+function themeButton(extraClass=''){const light=document.documentElement.dataset.theme==='light';return `<button type="button" class="secondary ${extraClass}" data-theme-toggle title="Switch to ${light?'dark':'light'} mode" aria-label="Switch to ${light?'dark':'light'} mode" aria-pressed="${light}"><span aria-hidden="true">${light?'☾':'☀'}</span></button>`;}
 function setTheme(theme){
  document.documentElement.dataset.theme=theme;
  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='light'?'#f4f6ef':'#141c19');
- document.querySelectorAll('[data-theme-toggle]').forEach(button=>{const light=theme==='light';button.textContent=light?'☾ Dark mode':'☀ Light mode';button.setAttribute('aria-label',`Switch to ${light?'dark':'light'} mode`);button.setAttribute('aria-pressed',String(light));});
+ document.querySelectorAll('[data-theme-toggle]').forEach(button=>{const light=theme==='light';button.innerHTML=`<span aria-hidden="true">${light?'☾':'☀'}</span>`;button.title=`Switch to ${light?'dark':'light'} mode`;button.setAttribute('aria-label',`Switch to ${light?'dark':'light'} mode`);button.setAttribute('aria-pressed',String(light));});
 }
 function toggleTheme(){const theme=document.documentElement.dataset.theme==='light'?'dark':'light';setTheme(theme);try{localStorage.setItem('courtside-theme',theme);}catch{}}
 window.addEventListener('storage',e=>{if(e.key==='courtside-theme'&&['light','dark'].includes(e.newValue))setTheme(e.newValue);});
