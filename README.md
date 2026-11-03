@@ -33,6 +33,10 @@ Use the **sun / moon** icon button on any page. Each device remembers its choice
 
 In organizer controls, use **Venue logo** to choose a JPEG, PNG, or WebP image, then click **Save logo**. It appears in the header on the TV, admin, and registration pages and above the courts in fullscreen TV mode. PNG transparency is preserved and the logo is scaled proportionally. To remove it, check **Remove logo** and save. Logos are stored locally in `data/photos/`, with the current selection saved in the session; updates are broadcast live and survive restarts. Only the organizer can change the logo.
 
+## Skill color tags
+
+A small dot beside each player name shows skill: green for Beginner, amber for Intermediate, and purple for Advanced. The tag has a tooltip and an accessible label. Full skill text remains available in organizer controls.
+
 ## Games played
 
 Each player’s completed-game count appears beside their name on the court cards, waiting queue, and saved-player directory. **Finish & rotate** adds one game to each of the four players currently on that court. Starting a match, editing details, and replacing someone do not add games. Counts stay with the player when removed and checked in again, and survive server restarts. They cover the current saved session, not a daily total. Existing sessions initialize counts from recorded teammate history.
