@@ -17,7 +17,7 @@ test('local HTTP flow: PIN, QR, live events, registration, and persisted restart
  const qr=await fetch(base+'/qr.svg');assert.match(await qr.text(),/<svg/);
  const events=await fetch(base+'/events');const reader=events.body.getReader();const initial=new TextDecoder().decode((await reader.read()).value);assert.match(initial,/data:/);
  const photo='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=';
- const joined=await action({type:'join',player:{name:'Alex',skill:'Intermediate',photo},partner:{name:'Sam',skill:'Advanced'}});assert.equal(joined.status,200);assert.equal(joined.body.queue[0].players.length,2);assert.equal(joined.body.profiles,undefined);
+ const joined=await action({type:'join',player:{name:'Alex',skill:'Low Inter',photo},partner:{name:'Sam',skill:'Advance'}});assert.equal(joined.status,200);assert.equal(joined.body.queue[0].players.length,2);assert.equal(joined.body.profiles,undefined);
  const photoPath=joined.body.queue[0].players[0].photo;assert.match(photoPath,/^\/photos\//);const image=await fetch(base+photoPath);assert.equal(image.headers.get('content-type'),'image/png');assert.equal(image.status,200);
  assert.equal((await action({type:'directory'})).status,401);const directory=await action({type:'directory',pin:'123456'});assert.equal(directory.body.players.length,2);
  const update=new TextDecoder().decode((await reader.read()).value);assert.match(update,/Alex/);await reader.cancel();

@@ -1,7 +1,7 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {initialState,applyAction,nextEntries}=require('../queue');
-const add=(s,name,skill='Intermediate',partner)=>applyAction(s,{type:'join',player:{name,skill},partner});
+const add=(s,name,skill='Low Inter',partner)=>applyAction(s,{type:'join',player:{name,skill},partner});
 test('FIFO rotation returns all four after waiting players and starts next four',()=>{
  let s=initialState();for(let i=1;i<=8;i++)s=add(s,`Player ${i}`);
  const court=s.courts[0].id;s=applyAction(s,{type:'start',id:court});
@@ -14,11 +14,11 @@ test('FIFO rotation returns all four after waiting players and starts next four'
  assert.equal(s.completed,1);
 });
 test('skill balancing splits strongest and weakest across equally strong teams',()=>{
- let s=initialState();for(const [n,skill]of [['A','Advanced'],['B','Advanced'],['C','Beginner'],['D','Beginner']])s=add(s,n,skill);
- s=applyAction(s,{type:'start',id:s.courts[0].id});for(const team of s.courts[0].match.teams)assert.deepEqual(team.map(p=>p.skill).sort(),['Advanced','Beginner']);
+ let s=initialState();for(const [n,skill]of [['A','Advance'],['B','Advance'],['C','Beginner'],['D','Beginner']])s=add(s,n,skill);
+ s=applyAction(s,{type:'start',id:s.courts[0].id});for(const team of s.courts[0].match.teams)assert.deepEqual(team.map(p=>p.skill).sort(),['Advance','Beginner']);
 });
 test('locked pairs never split, and unmatched early players retain their position',()=>{
- let s=initialState();s=add(s,'Solo');s=add(s,'A','Advanced',{name:'B',skill:'Advanced'});s=add(s,'C','Beginner',{name:'D',skill:'Beginner'});
+ let s=initialState();s=add(s,'Solo');s=add(s,'A','Advance',{name:'B',skill:'Advance'});s=add(s,'C','Beginner',{name:'D',skill:'Beginner'});
  s=applyAction(s,{type:'start',id:s.courts[0].id});assert.equal(s.queue[0].players[0].name,'Solo');
  const teams=s.courts[0].match.teams.map(t=>t.map(p=>p.name).sort().join(''));
  assert.deepEqual(teams.sort(),['AB','CD']);
@@ -35,28 +35,28 @@ test('court allocations cannot share players; incomplete groups cannot start',()
  s=add(s,'P7');s=applyAction(s,{type:'start',id:s.courts[1].id});const ids=s.courts.flatMap(c=>c.match.teams.flat().map(p=>p.id));assert.equal(new Set(ids).size,8);
 });
 test('invalid and duplicate registrations do not change state',()=>{
- let s=add(initialState(),'Alex');assert.throws(()=>add(s,' alex '),/already checked in/);assert.throws(()=>add(s,'','Advanced'),/name/);assert.throws(()=>add(s,'Jamie','Expert'),/skill/);assert.equal(s.queue.length,1);
+ let s=add(initialState(),'Alex');assert.throws(()=>add(s,' alex '),/already checked in/);assert.throws(()=>add(s,'','Advance'),/name/);assert.throws(()=>add(s,'Jamie','Expert'),/skill/);assert.equal(s.queue.length,1);
 });
 test('paused courts cannot start and active courts cannot pause',()=>{
  let s=initialState();for(let i=0;i<4;i++)s=add(s,`P${i}`);const id=s.courts[0].id;s=applyAction(s,{type:'toggleCourt',id});assert.throws(()=>applyAction(s,{type:'start',id}),/complete group/);s=applyAction(s,{type:'toggleCourt',id});s=applyAction(s,{type:'start',id});assert.throws(()=>applyAction(s,{type:'toggleCourt',id}),/Finish/);
 });
 test('editing a waiting pair preserves position, identities, and teammate history',()=>{
- let s=add(initialState(),'First');s=add(s,'Alex','Intermediate',{name:'Sam',skill:'Beginner'});
+ let s=add(initialState(),'First');s=add(s,'Alex','Low Inter',{name:'Sam',skill:'Beginner'});
  const original=structuredClone(s.queue[1]);s.history['existing-pair']=3;
- s=applyAction(s,{type:'edit',id:original.id,players:[{name:'Alex R',skill:'Advanced'},{name:'Sam T',skill:'Intermediate'}]});
+ s=applyAction(s,{type:'edit',id:original.id,players:[{name:'Alex R',skill:'Advance'},{name:'Sam T',skill:'Low Inter'}]});
  assert.equal(s.queue[0].players[0].name,'First');assert.equal(s.queue[1].id,original.id);
  assert.equal(s.queue[1].joinedAt,original.joinedAt);assert.deepEqual(s.queue[1].players.map(p=>p.id),original.players.map(p=>p.id));
- assert.equal(s.queue[1].players[0].name,'Alex R');assert.equal(s.queue[1].players[0].skill,'Advanced');assert.equal(s.history['existing-pair'],3);
+ assert.equal(s.queue[1].players[0].name,'Alex R');assert.equal(s.queue[1].players[0].skill,'Advance');assert.equal(s.history['existing-pair'],3);
 });
 test('edits reject duplicate names, invalid skills, and entries already on court',()=>{
  let s=initialState();for(const n of ['A','B','C','D','E'])s=add(s,n);
  const id=s.queue[4].id;
- assert.throws(()=>applyAction(s,{type:'edit',id,players:[{name:' a ',skill:'Advanced'}]}),/already checked in/);
+ assert.throws(()=>applyAction(s,{type:'edit',id,players:[{name:' a ',skill:'Advance'}]}),/already checked in/);
  assert.throws(()=>applyAction(s,{type:'edit',id,players:[{name:'E',skill:'Expert'}]}),/skill/);
  assert.throws(()=>applyAction(s,{type:'edit',id,players:[]}),/existing players/);
  const playingId=s.queue[0].id;s=applyAction(s,{type:'start',id:s.courts[0].id});
- assert.throws(()=>applyAction(s,{type:'edit',id:playingId,players:[{name:'Changed',skill:'Advanced'}]}),/no longer waiting/);
- assert.throws(()=>applyAction(s,{type:'edit',id,players:[{name:'A',skill:'Advanced'}]}),/already checked in/);
+ assert.throws(()=>applyAction(s,{type:'edit',id:playingId,players:[{name:'Changed',skill:'Advance'}]}),/no longer waiting/);
+ assert.throws(()=>applyAction(s,{type:'edit',id,players:[{name:'A',skill:'Advance'}]}),/already checked in/);
  assert.equal(s.queue[0].players[0].name,'E');
 });
 test('court replacement removes a departed player and preserves timer, queue order, and identities',()=>{
@@ -79,7 +79,7 @@ test('replacement can return outgoing player to queue; stale replacement is reje
  assert.throws(()=>applyAction(s,a),/court has changed/);
 });
 test('locked court pair needs explicit unlock and a waiting pair cannot be split',()=>{
- let s=initialState();s=add(s,'A','Advanced',{name:'B',skill:'Beginner'});for(const n of ['C','D','E'])s=add(s,n);s=add(s,'F','Advanced',{name:'G',skill:'Beginner'});
+ let s=initialState();s=add(s,'A','Advance',{name:'B',skill:'Beginner'});for(const n of ['C','D','E'])s=add(s,n);s=add(s,'F','Advance',{name:'G',skill:'Beginner'});
  const id=s.courts[0].id;s=applyAction(s,{type:'start',id});const match=s.courts[0].match;
  const a={type:'replace',id,matchId:match.id,playerId:match.entries[0].players[0].id,replacementId:s.queue[0].id,destination:'queue'};
  assert.throws(()=>applyAction(s,a),/Confirm unlocking/);
@@ -90,7 +90,7 @@ test('locked court pair needs explicit unlock and a waiting pair cannot be split
 });
 test('saved players can be checked in again with their original identity and photo',()=>{
  const photo='/photos/'+'a'.repeat(64)+'.jpg';
- let s=applyAction(initialState(),{type:'join',player:{name:'Returning Alex',skill:'Advanced',photo}});
+ let s=applyAction(initialState(),{type:'join',player:{name:'Returning Alex',skill:'Advance',photo}});
  const original=s.queue[0].players[0];s=applyAction(s,{type:'remove',id:s.queue[0].id});
  assert.deepEqual(s.profiles[original.id],original);
  assert.equal(require('../queue').publicState(s).profiles,undefined);
@@ -100,13 +100,13 @@ test('saved players can be checked in again with their original identity and pho
 test('editing a photo updates the saved profile; omitted photo is retained and null removes it',()=>{
  let s=add(initialState(),'Alex');const entry=s.queue[0],id=entry.players[0].id;
  const photo='/photos/'+'b'.repeat(64)+'.png';
- s=applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Advanced',photo}]});assert.equal(s.profiles[id].photo,photo);
- s=applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Intermediate'}]});assert.equal(s.profiles[id].photo,photo);
- s=applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Intermediate',photo:null}]});assert.equal(s.profiles[id].photo,undefined);
- assert.throws(()=>applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Intermediate',photo:'javascript:alert(1)'}]}),/valid player photo/);
+ s=applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Advance',photo}]});assert.equal(s.profiles[id].photo,photo);
+ s=applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Low Inter'}]});assert.equal(s.profiles[id].photo,photo);
+ s=applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Low Inter',photo:null}]});assert.equal(s.profiles[id].photo,undefined);
+ assert.throws(()=>applyAction(s,{type:'edit',id:entry.id,players:[{name:'Alex R',skill:'Low Inter',photo:'javascript:alert(1)'}]}),/valid player photo/);
 });
 test('saved check-in supports locked partners and rejects invalid or duplicate selections',()=>{
- let s=add(initialState(),'Alex','Advanced',{name:'Sam',skill:'Intermediate'});const ids=s.queue[0].players.map(p=>p.id);
+ let s=add(initialState(),'Alex','Advance',{name:'Sam',skill:'Low Inter'});const ids=s.queue[0].players.map(p=>p.id);
  s=applyAction(s,{type:'remove',id:s.queue[0].id});
  assert.throws(()=>applyAction(s,{type:'checkIn',playerIds:[ids[0],ids[0]]}),/different players/);
  assert.throws(()=>applyAction(s,{type:'checkIn',playerIds:['missing']}),/not found/);
@@ -135,4 +135,11 @@ test('replacement credits only the four players present when the match finishes'
 });
 test('legacy counts initialize from completed history once',()=>{
  const {migrateState}=require('../queue');const s=initialState();s.history={'alex:sam':2,'alex:robin':1};migrateState(s);assert.deepEqual(s.gamesPlayed,{alex:3,sam:2,robin:1});s.history['alex:sam']=8;migrateState(s);assert.equal(s.gamesPlayed.alex,3);
+});
+test('legacy skills migrate in saved profiles, waiting players, and active courts',()=>{
+ const {migrateState}=require('../queue');let s=initialState();for(const n of ['A','B','C','D','E'])s=add(s,n);s=applyAction(s,{type:'start',id:s.courts[0].id});
+ for(const p of Object.values(s.profiles))p.skill='Advanced';
+ s.queue[0].players[0].skill='Intermediate';for(const p of s.courts[0].match.entries.flatMap(e=>e.players))p.skill='Advanced';for(const p of s.courts[0].match.teams.flat())p.skill='Advanced';
+ s=migrateState(s);assert.equal(s.queue[0].players[0].skill,'Low Inter');assert.ok(s.courts[0].match.entries.every(e=>e.players.every(p=>p.skill==='Advance')));assert.ok(s.courts[0].match.teams.flat().every(p=>p.skill==='Advance'));
+ for(const level of ['Beginner','Low Inter','High Inter','Advance'])assert.equal(add(initialState(),level,level).queue[0].players[0].skill,level);
 });

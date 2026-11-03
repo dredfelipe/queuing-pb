@@ -1,12 +1,13 @@
 const crypto = require('node:crypto');
-const levels={Beginner:1,Intermediate:2,Advanced:3};
+const levels={Beginner:1,'Low Inter':2,'High Inter':3,Advance:4};
+const normalizeSkill=skill=>skill==='Intermediate'?'Low Inter':skill==='Advanced'?'Advance':skill;
 const id=()=>crypto.randomUUID();
 function initialState(){return {courts:[{id:id(),name:'Court 1',enabled:true,match:null},{id:id(),name:'Court 2',enabled:true,match:null}],queue:[],history:{},completed:0};}
 function publicState(s){return {...s,history:undefined,profiles:undefined};}
-function migrateState(s){if(!s.gamesPlayed){s.gamesPlayed={};for(const [team,total] of Object.entries(s.history||{}))for(const playerId of team.split(':'))s.gamesPlayed[playerId]=(s.gamesPlayed[playerId]||0)+total;}s.profiles ||= {};for(const e of [...s.queue,...s.courts.flatMap(c=>c.match?c.match.entries:[])])for(const p of e.players)s.profiles[p.id]={...p};return s;}
+function migrateState(s){if(!s.gamesPlayed){s.gamesPlayed={};for(const [team,total] of Object.entries(s.history||{}))for(const playerId of team.split(':'))s.gamesPlayed[playerId]=(s.gamesPlayed[playerId]||0)+total;}s.profiles ||= {};for(const p of [...Object.values(s.profiles),...s.queue.flatMap(e=>e.players),...s.courts.flatMap(c=>c.match?[...c.match.entries.flatMap(e=>e.players),...c.match.teams.flat()]:[])])p.skill=normalizeSkill(p.skill);for(const e of [...s.queue,...s.courts.flatMap(c=>c.match?c.match.entries:[])])for(const p of e.players)s.profiles[p.id]={...p};return s;}
 function photo(value){if(value==null||value==='')return undefined;if(typeof value!=='string'||!/^\/photos\/[a-f0-9]{64}\.(jpg|png|webp)$/.test(value))throw Error('Choose a valid player photo.');return value;}
 function name(value){if(typeof value!=='string'||!value.trim()||value.trim().length>40)throw Error('Use a name between 1 and 40 characters.');return value.trim();}
-function player(value){if(!value||!levels[value.skill])throw Error('Choose a valid skill level.');return {id:id(),name:name(value.name),skill:value.skill,photo:photo(value.photo)};}
+function player(value){if(!value||!Object.hasOwn(levels,normalizeSkill(value.skill)))throw Error('Choose a valid skill level.');return {id:id(),name:name(value.name),skill:normalizeSkill(value.skill),photo:photo(value.photo)};}
 function teamKey(a,b){return [a.id,b.id].sort().join(':');}
 function splitTeams(entries,history){
  const p=entries.flatMap(e=>e.players);const options=[[0,1,2,3],[0,2,1,3],[0,3,1,2]];

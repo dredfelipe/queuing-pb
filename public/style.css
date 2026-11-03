@@ -49,4 +49,6 @@ nav button{font-size:13px;padding:9px 12px}.tv-exit{display:none}
 
 .games-played{display:block;font-size:12px;font-weight:600;line-height:1.5;color:#d4f578;margin-top:3px;letter-spacing:0}.tv-mode .games-played{font-size:clamp(13px,1vw,18px)}[data-theme="light"] .games-played{color:#42651c}
 
-.skill-tag{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:8px;vertical-align:middle;box-shadow:0 0 0 2px #ffffff12}.skill-tag.beginner{background:#60c989}.skill-tag.intermediate{background:#edb54b}.skill-tag.advanced{background:#b69aee}[data-theme="light"] .skill-tag.beginner{background:#26884b}[data-theme="light"] .skill-tag.intermediate{background:#a9700b}[data-theme="light"] .skill-tag.advanced{background:#8051c2}.tv-mode .skill-tag{width:11px;height:11px}
+.skill-tag{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:8px;vertical-align:middle;box-shadow:0 0 0 2px #ffffff12}.skill-tag.beginner{background:#60c989}.skill-tag.low-inter{background:#edb54b}.skill-tag.advanced{background:#b69aee}[data-theme="light"] .skill-tag.beginner{background:#26884b}[data-theme="light"] .skill-tag.low-inter{background:#a9700b}[data-theme="light"] .skill-tag.advanced{background:#8051c2}.tv-mode .skill-tag{width:11px;height:11px}
+
+.skill-tag.high-inter{background:#67b8ef}[data-theme="light"] .skill-tag.high-inter{background:#216eae}

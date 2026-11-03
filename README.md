@@ -35,7 +35,7 @@ In organizer controls, use **Venue logo** to choose a JPEG, PNG, or WebP image, 
 
 ## Skill color tags
 
-A small dot beside each player name shows skill: green for Beginner, amber for Intermediate, and purple for Advanced. The tag has a tooltip and an accessible label. Full skill text remains available in organizer controls.
+A small dot beside each player name shows skill: green for Beginner, amber for Low Inter, blue for High Inter, and purple for Advance. The tag has a tooltip and an accessible label. Full skill text remains available in organizer controls.
 
 ## Games played
 
@@ -46,7 +46,7 @@ Each player’s completed-game count appears beside their name on the court card
 - Add players in organizer controls or let players register themselves. Names must be unique in the session; add a surname/initial if needed.
 - Photos are optional: choose a JPEG, PNG, or WebP during registration or add/change/remove one through **Edit** on a waiting player. The browser reduces uploaded photos to thumbnails; images are stored in `data/photos/` and appear on court cards and in the waiting queue. Players without photos use their initial.
 - **Returning players** in admin opens the saved directory. Search by name and click **Check in** to reuse a player’s name, skill, photo, and identity. You can optionally select another saved player as a locked partner. Already checked-in players are marked and cannot be added twice. Profiles are saved automatically on first registration and kept after removal from the queue. Returning players who use QR registration should ask the organizer to check them in from the directory.
-- Choose Beginner, Intermediate, or Advanced. Join individually to choose your partner on court, or enter both players together to lock teammates. Locked pairs are one queue entry and always stay on the same team.
+- Choose Beginner, Low Inter, High Inter, or Advance. Existing Intermediate records become Low Inter, and Advanced records become Advance; organizers can adjust levels through Edit. Join individually to choose your partner on court, or enter both players together to lock teammates. Locked pairs are one queue entry and always stay on the same team.
 - Add named courts as needed (up to 100). Pause an idle court to take it out of service.
 - Tap **Start next four** on an available court. The earliest complete group of four is assigned. Courts start manually so players are not sent onto an unready court.
 - If someone backs out, use **Replace player** on their active court. Choose the outgoing player and an individual waiting replacement. Remove the outgoing player from the session or return them to the back of the queue. The match timer and other players stay in place. Replacing a member of a locked pair requires explicit confirmation to unlock that pair; the remaining partner stays on court. To use a new arrival, add them to the waiting queue first.

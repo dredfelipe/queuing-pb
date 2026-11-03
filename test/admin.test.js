@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const {JSDOM}=require('jsdom');
 const {initialState,applyAction,publicState}=require('../queue');
 async function setup(failReplacement=false,logo=null){
- let state=applyAction(initialState(),{type:'join',player:{name:'Returning Robin',skill:'Advanced'}});state=applyAction(state,{type:'remove',id:state.queue[0].id});for(const name of ['Alex','Blair','Casey','Drew','Evan'])state=applyAction(state,{type:'join',player:{name,skill:'Intermediate'}});
+ let state=applyAction(initialState(),{type:'join',player:{name:'Returning Robin',skill:'Advance'}});state=applyAction(state,{type:'remove',id:state.queue[0].id});for(const name of ['Alex','Blair','Casey','Drew','Evan'])state=applyAction(state,{type:'join',player:{name,skill:'Low Inter'}});
  state=applyAction(state,{type:'start',id:state.courts[0].id});
  state.logo=logo;
  const dom=new JSDOM('<div id="app"></div><div id="toast"></div>',{url:'http://localhost/admin',runScripts:'outside-only'});const w=dom.window;
