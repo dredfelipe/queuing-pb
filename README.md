@@ -25,6 +25,10 @@ PUBLIC_URL=http://192.168.1.50:3000 npm start
 
 A router DHCP reservation keeps that address stable. Restart after changing the address. Optional settings: `PORT` (default `3000`), `ORGANIZER_PIN`, and `DATA_DIR`.
 
+## Light and dark mode
+
+Use the **Light mode / Dark mode** button on any page. Each device remembers its choice across refreshes and navigation; the first visit follows the device’s appearance preference. Fullscreen TV has a theme button in the lower-left corner that becomes more visible when hovered or focused. Changing the theme does not affect other devices or interrupt the queue.
+
 ## Venue logo
 
 In organizer controls, use **Venue logo** to choose a JPEG, PNG, or WebP image, then click **Save logo**. It appears in the header on the TV, admin, and registration pages and above the courts in fullscreen TV mode. PNG transparency is preserved and the logo is scaled proportionally. To remove it, check **Remove logo** and save. Logos are stored locally in `data/photos/`, with the current selection saved in the session; updates are broadcast live and survive restarts. Only the organizer can change the logo.

@@ -10,7 +10,8 @@ test('local HTTP flow: PIN, QR, live events, registration, and persisted restart
  async function start(){child=spawn(process.execPath,['server.js'],{cwd:path.join(__dirname,'..'),env:{...process.env,PORT:String(port),DATA_DIR:dir,ORGANIZER_PIN:'123456',PUBLIC_URL:base},stdio:['ignore','pipe','pipe']});await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Server startup timed out')),5000);child.once('error',reject);child.once('exit',code=>{clearTimeout(timer);reject(Error(`Server exited: ${code}`));});child.stdout.on('data',()=>{clearTimeout(timer);resolve();});});}
  async function stop(){if(child&&child.exitCode===null){const done=new Promise(resolve=>child.once('exit',resolve));child.kill();await done;}}
  async function action(body){const res=await fetch(base+'/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return {status:res.status,body:await res.json()};}
- try{await start();for(const route of ['/','/join','/admin','/app.js','/style.css'])assert.equal((await fetch(base+route)).status,200);
+ try{await start();for(const route of ['/','/join','/admin','/app.js','/theme.js','/style.css'])assert.equal((await fetch(base+route)).status,200);
+ const themeScript=await fetch(base+'/theme.js');assert.match(themeScript.headers.get('content-type'),/javascript/);assert.match(await themeScript.text(),/courtside-theme/);
  assert.equal((await action({type:'addCourt',name:'Unauthorized'})).status,401);
  assert.equal((await action({type:'login',pin:'123456'})).status,200);
  const qr=await fetch(base+'/qr.svg');assert.match(await qr.text(),/<svg/);

@@ -57,7 +57,7 @@ const server=http.createServer(async(req,res)=>{
  const next=applyAction(state,body);
  const previous=state;state=next;try{save();}catch(error){state=previous;throw error;}return json(res,200,publicState(state));
  }
- const name=url.pathname==='/app.js'?'app.js':url.pathname==='/style.css'?'style.css':'index.html';
+ const name=url.pathname==='/theme.js'?'theme.js':url.pathname==='/app.js'?'app.js':url.pathname==='/style.css'?'style.css':'index.html';
  res.writeHead(200,{'Content-Type':name.endsWith('.js')?'text/javascript':name.endsWith('.css')?'text/css':'text/html','Cache-Control':'no-cache'});res.end(fs.readFileSync(path.join(__dirname,'public',name)));
  }catch(e){json(res,400,{error:e.message});}
 });
