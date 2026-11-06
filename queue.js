@@ -47,9 +47,10 @@ function applyAction(input,a){const s=migrateState(structuredClone(input));
  s.queue.push({id:id(),players,joinedAt:Date.now()});break;
  }
  case 'addCourt':if(s.courts.length>=100)throw Error('A session supports up to 100 courts.');s.courts.push({id:id(),name:name(a.name),enabled:true,match:null});break;
+ case 'deleteCourt':{const c=s.courts.find(c=>c.id===a.id);if(!c)throw Error('Court not found.');if(c.match)throw Error('Finish the active match before deleting this court.');s.courts=s.courts.filter(x=>x.id!==c.id);break;}
  case 'toggleCourt':{const c=s.courts.find(c=>c.id===a.id);if(!c)throw Error('Court not found.');if(c.match)throw Error('Finish the current match before pausing this court.');c.enabled=!c.enabled;break;}
  case 'start':{const c=s.courts.find(c=>c.id===a.id);if(!c)throw Error('Court not found.');if(c.match)throw Error('This court already has a match.');fill(s,c);if(!c.match)throw Error('Need a complete group of four players.');break;}
- case 'finish':{const c=s.courts.find(c=>c.id===a.id);if(!c||!c.match||c.match.id!==a.matchId)throw Error('This match has already changed. Refresh and try again.');const match=c.match;for(const p of match.entries.flatMap(e=>e.players))s.gamesPlayed[p.id]=(s.gamesPlayed[p.id]||0)+1;for(const team of match.teams){const key=teamKey(...team);s.history[key]=(s.history[key]||0)+1;}s.queue.push(...match.entries);s.completed++;c.match=null;fill(s,c);break;}
+ case 'finish':case 'finishSitOut':{const c=s.courts.find(c=>c.id===a.id);if(!c||!c.match||c.match.id!==a.matchId)throw Error('This match has already changed. Refresh and try again.');const match=c.match;for(const p of match.entries.flatMap(e=>e.players))s.gamesPlayed[p.id]=(s.gamesPlayed[p.id]||0)+1;for(const team of match.teams){const key=teamKey(...team);s.history[key]=(s.history[key]||0)+1;}s.queue.push(...match.entries);s.completed++;c.match=null;if(a.type==='finish')fill(s,c);break;}
  case 'replace':{
  const court=s.courts.find(c=>c.id===a.id);
  if(!court||!court.match||court.match.id!==a.matchId)throw Error('This court has changed. Close this window and try again.');
